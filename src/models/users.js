@@ -25,7 +25,7 @@ const User = mongoose.model('User', UserSchema, 'User');
 const SchoolSchema = new mongoose.Schema({
   id: { type: String, required: true },
   name: { type: String, required: true },
-  address: { type: String, required: true },
+  address: { type: String, required: false },
   phoneNumber: { type: String, required: false }
 });
 
@@ -79,4 +79,35 @@ function getSchool(id) {
   return deferred.promise;
 }
 
-module.exports = { UserSchema, User, getUser, insertUser, getSchool, SchoolSchema, School };
+function getSchools() {
+  var deferred = q.defer();
+  School.find({}, (err, school) => {
+    if (err || !school) {
+      deferred.reject({
+        status: "Error",
+        message: err
+      });
+    }
+    deferred.resolve(school);
+  });
+  return deferred.promise;
+}
+
+function insertSchool(school) {
+  var deferred = q.defer();
+  var insertData = new School({
+    id: school.id,
+    name: school.name,
+    address: school.address,
+    phoneNumber: school.phoneNumber
+  });
+  console.log(insertData)
+  insertData.save((err, school) => {
+    if (err || !school) {
+      deferred.reject({ status: "Error", message: err });
+    }
+    deferred.resolve(school);
+  });
+  return deferred.promise;
+}
+module.exports = { UserSchema, User, getUser, insertUser, getSchool, SchoolSchema, School, getSchools, insertSchool };

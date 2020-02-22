@@ -18,6 +18,7 @@ util.config = require("./config")[app.get("env")];
 console.log(util.config)
 const usersModel = require('./models/users');
 const users = require('./users');
+const schools = require('./schools');
 
 const port = process.env.PORT || util.config.port;
 
@@ -59,4 +60,14 @@ app.post('/user', function(req, res) {
 app.post('/users', checkJwt, function(req, res) {
   // console.log(users.getUserDocument());
   users.createMultipleUsers(req, res, function(data){res.json(data)});
+});
+app.get('/schools', function(req, res) {
+  usersModel.getSchools().then(function(data){
+    res.json(data);
+  }).catch(function(error){
+    res.json(error);
+  });
+});
+app.post('/schools', checkJwt, function(req, res) {
+  schools.createMultipleSchools(req, res, function(data){res.json(data)});
 });
