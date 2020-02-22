@@ -16,6 +16,7 @@ const UserSchema = new mongoose.Schema({
   username: { type: String, required: false },
   role: { type: String, required: true },
   fullName: { type: String, required: false },
+  phoneNumber: { type: String, required: false },
   schoolId: { type: String, required: false }
 });
 
@@ -50,6 +51,7 @@ function insertUser(user) {
       fullName: user.name,
       auth0Id: user.user_id,
       role: user.user_metadata.role,
+      phoneNumber: user.user_metadata.phoneNumber,
       schoolId: school.id
     });
     insertData.save((err, user) => {

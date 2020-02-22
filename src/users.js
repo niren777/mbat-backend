@@ -10,7 +10,8 @@ function createUser(req, res, callback) {
         "email": req.body.email,
         "user_metadata": {
             "role": "admin",
-            "schoolId": req.body.schoolId
+            "schoolId": req.body.schoolId,
+            "phoneNumber": req.body.phoneNumber
         },
         "blocked": false,
         "email_verified": false,
@@ -52,7 +53,8 @@ function createMultipleUsers(req, res, callback) {
             "email": user.email,
             "user_metadata": {
                 "role": "admin",
-                "schoolId": user.schoolId
+                "schoolId": user.schoolId,
+                "phoneNumber": req.body.phoneNumber
             },
             "blocked": false,
             "email_verified": false,

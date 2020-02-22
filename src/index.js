@@ -52,7 +52,7 @@ app.get('/api/public', function(req, res) {
         message: 'Hello from a public endpoint! You don\'t need to be authenticated to see this.'
     });
 });
-app.post('/user', checkJwt, function(req, res) {
+app.post('/user', function(req, res) {
     // console.log(users.getUserDocument());
     users.createUser(req, res, function(data){res.json(data)});
 });
