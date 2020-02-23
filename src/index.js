@@ -47,8 +47,9 @@ const checkJwt = jwt({
   algorithms: ['RS256']
 });
 
-app.get('/api/public', function(req, res) {
+app.get('/public', function(req, res) {
     // console.log(users.getUserDocument());
+    users.getToken()
     res.json({
         message: 'Hello from a public endpoint! You don\'t need to be authenticated to see this.'
     });

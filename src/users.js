@@ -20,6 +20,34 @@ function getAccessToken(){
     });
     return deferred.promise;
 }
+function getToken(userData) {
+    var deferred = q.defer();
+    const bodyParams = {
+        client_id: util.config.auth0.clientId,
+        grant_type: 'http://auth0.com/oauth/grant-type/password-realm',
+        username: userData.email,
+        password: userData.password,
+        audience: 'https://' + util.config.auth0.domain +'/api/v2/',
+        scope: 'openid',
+        client_secret: util.config.auth0.clientSecret,
+        realm: 'Username-Password-Authentication'
+      };
+      request('https://' + util.config.auth0.domain + '/oauth/token', {
+        crossDomain: true,
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bodyParams)
+      }, function(error, data){
+        if(error) {
+            deferred.reject(error);
+        }
+        deferred.resolve(JSON.parse(data.body));
+      });
+      return deferred.promise;
+}
 function createUser(req, res, callback) {
     let createUserData = {
         "email": req.body.email,
@@ -55,9 +83,14 @@ function createUser(req, res, callback) {
             var user = JSON.parse(body.body);
             console.log(user);
             await users.insertUser(user);
-            callback(user);
+            getToken(createUserData).then(function(tokenData){
+                user.access_token = tokenData.access_token;
+                console.log(user)
+                callback(user);
+            }).catch(function(error){
+                callback(JSON.parse(error.error || error));
+            });
         }).catch(function(error){
-            console.log(error);
             callback(JSON.parse(error.error || error));
         });
     });
@@ -112,4 +145,4 @@ function createMultipleUsers(req, res, callback) {
         });
     });
 }
-module.exports = { createUser, createMultipleUsers };
+module.exports = { createUser, createMultipleUsers, getToken };
