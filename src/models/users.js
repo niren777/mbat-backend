@@ -17,7 +17,11 @@ const UserSchema = new mongoose.Schema({
   role: { type: String, required: true },
   fullName: { type: String, required: false },
   phoneNumber: { type: String, required: false },
-  schoolId: { type: String, required: false }
+  schoolId: { type: String, required: false },
+  auth0Id: { type: String, required: true, default: '' },
+  emailVerified: { type: Boolean, required: true,  default: false },
+  createdAt: { type: String, required: false },
+  picture: { type: String, default: '' }
 });
 
 const User = mongoose.model('User', UserSchema, 'User');
@@ -31,13 +35,19 @@ const SchoolSchema = new mongoose.Schema({
 
 const School = mongoose.model('School', SchoolSchema, 'School');
 
-function getUser(req, res, next) {
+function getUser(req) {
   var deferred = q.defer();
+  console.log(req.user.email);
   User.findOne({email: req.user.email}, (err, user) => {
+    console.log(user, err);
     if (err || !user) {
       deferred.reject({ status: "Error", message: err });
     }
-    deferred.resolve(user);
+    getSchool(user.schoolId).then(function(school, err){
+      user = JSON.parse(JSON.stringify(user));
+      user['schoolName'] = school.name;
+      deferred.resolve(user);
+    })
   });
   return deferred.promise;
 }
@@ -52,7 +62,10 @@ function insertUser(user) {
       auth0Id: user.user_id,
       role: user.user_metadata.role,
       phoneNumber: user.user_metadata.phoneNumber,
-      schoolId: school.id
+      schoolId: school.id,
+      emailVerified: user.email_verified,
+      createdAt: user.created_at,
+      picture: user.picture
     });
     insertData.save((err, user) => {
       if (err || !user) {

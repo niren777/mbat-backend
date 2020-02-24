@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const jwt = require('express-jwt');
 const jwtAuthz = require('express-jwt-authz');
 const jwksRsa = require('jwks-rsa');
+const request = require('request');
 
 
 const app = express()
@@ -47,12 +48,37 @@ const checkJwt = jwt({
   algorithms: ['RS256']
 });
 
+const getUserInfo = function(req, res, next) {
+  console.log(req.headers.authorization);
+    request('https://' + util.config.auth0.domain + '/userinfo', {
+      crossDomain: true,
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': req.headers.authorization
+      }
+    }, function(error, data){
+      if(error) {
+          res.json({
+            'error': 'error'
+          })
+      }
+      console.log(data.body)
+      req.user = JSON.parse(data.body);
+      next();
+    });
+};
 app.get('/public', function(req, res) {
     // console.log(users.getUserDocument());
     users.getToken()
     res.json({
         message: 'Hello from a public endpoint! You don\'t need to be authenticated to see this.'
     });
+});
+app.get('/user', checkJwt, getUserInfo, function(req, res) {
+  // console.log(req.user);
+  usersModel.getUser(req).then(function(data){res.json(data)});
 });
 app.post('/user', function(req, res) {
     // console.log(users.getUserDocument());
