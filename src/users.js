@@ -68,6 +68,9 @@ function createUser(req, res, callback) {
         "verify_email": true
     };
     console.log(req.body);
+    makeUserAPICall(createUserData, callback);
+}
+function makeUserAPICall(createUserData, callback) {
     getAccessToken().then(function(token) {
         console.log(token)
         requestPromise({
@@ -145,4 +148,4 @@ function createMultipleUsers(req, res, callback) {
         });
     });
 }
-module.exports = { createUser, createMultipleUsers, getToken };
+module.exports = { createUser, createMultipleUsers, getToken, makeUserAPICall };

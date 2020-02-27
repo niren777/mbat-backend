@@ -12,7 +12,7 @@ const mongooseMbat = mongoose.connect('mongodb://' + util.config.mongodb.domain 
 
 
 const UserSchema = new mongoose.Schema({
-  email: { type: String, required: true },
+  email: { type: String, unique : true, required: true },
   username: { type: String, required: false },
   role: { type: String, required: true },
   fullName: { type: String, required: false },
@@ -27,7 +27,7 @@ const UserSchema = new mongoose.Schema({
 const User = mongoose.model('User', UserSchema, 'User');
 
 const SchoolSchema = new mongoose.Schema({
-  id: { type: String, required: true },
+  id: { type: String, unique : true, required: true },
   name: { type: String, required: true },
   address: { type: String, required: false },
   phoneNumber: { type: String, required: false }
@@ -35,14 +35,104 @@ const SchoolSchema = new mongoose.Schema({
 
 const School = mongoose.model('School', SchoolSchema, 'School');
 
-function getUser(req) {
+const TicketSchema = new mongoose.Schema({
+  ticketName: { type: String, required: false },
+  ticketId: { type: String, unique : true, required: true },
+  email: { type: String, required: true },
+  checkin: { type: String, required: true },
+  ticketNo: { type: String, unique : true, required: true },
+  status: { type: String, required: true },
+});
+
+const Ticket = mongoose.model('Ticket', TicketSchema, 'Ticket');
+
+const OrderSchema = new mongoose.Schema({
+  orderNo: { type: String, unique : true, required: false },
+  orderCost: { type: Number },
+  quantity: { type: Number },
+  status: { type: String, required: false },
+  paidBy: { type: String, required: false },
+  paidTo: { type: String, required: false },
+  refundAmount: { type: String, required: false },
+  purchaseDate: {
+      date: { type: String, required: false },
+      timezone_type: { type: String, required: false },
+      timezone: { type: String, required: false }
+  },
+  name: { type: String, required: false },
+  email: { type: String, required: false },
+  city: { type: String, required: false },
+  state: { type: String, required: false },
+  country: { type: String, required: false },
+  address: { type: String, required: false },
+  zipcode: { type: String, required: false },
+  phoneNo: { type: String, required: false },
+  attendee: [String]
+});
+
+const Order = mongoose.model('Order', OrderSchema, 'Order');
+
+function insertOrder(order) {
   var deferred = q.defer();
-  console.log(req.user.email);
-  User.findOne({email: req.user.email}, (err, user) => {
+  var tempOrder = JSON.parse(JSON.stringify(order));
+  var tempAttendee = [];
+  order.attendee.forEach(ticket => {
+    tempAttendee.push(ticket.email);
+  });
+  tempOrder.attendee = tempAttendee;
+  var insertData = new Order(tempOrder);
+  insertData.save((err, createdOrder) => {
+    if (err || !createdOrder) {
+      deferred.reject({ status: "Error", message: err });
+    }
+    deferred.resolve(createdOrder);
+  });
+  return deferred.promise;
+}
+
+function insertTicket(ticket) {
+  var deferred = q.defer();
+  var tempTicket = {
+    ticketName: ticket.ticketName,
+    ticketId: ticket.ticketId,
+    email: ticket.email,
+    checkin: ticket.checkin,
+    ticketNo: ticket.ticketNo,
+    status: ticket.status
+  }
+  var insertData = new Ticket(tempTicket);
+  insertData.save((err, createdTicket) => {
+    if (err || !createdTicket) {
+      deferred.reject({ status: "Error", message: err });
+    }
+    deferred.resolve(createdTicket);
+  });
+  return deferred.promise;
+}
+
+function getTopFirstOrder() {
+  var deferred = q.defer();
+  Order.find({}, null, {sort: {'purchaseDate.date': -1}, limit: 1}, (err, order) => {
+    console.log(order, err);
+    if (err || !order) {
+      deferred.reject({ status: "Error", message: err });
+    }
+    deferred.resolve(order);
+  });
+  return deferred.promise;
+}
+
+function getUser(email) {
+  var deferred = q.defer();
+  console.log(email);
+  User.findOne({email: email}, (err, user) => {
     console.log(user, err);
     if (err || !user) {
       deferred.reject({ status: "Error", message: err });
     }
+    if (!user.schoolId)
+      deferred.reject({ status: "Error", message: err });
+
     getSchool(user.schoolId).then(function(school, err){
       user = JSON.parse(JSON.stringify(user));
       user['schoolName'] = school.name;
@@ -123,4 +213,4 @@ function insertSchool(school) {
   });
   return deferred.promise;
 }
-module.exports = { UserSchema, User, getUser, insertUser, getSchool, SchoolSchema, School, getSchools, insertSchool };
+module.exports = { UserSchema, User, getUser, insertUser, getSchool, SchoolSchema, School, getSchools, insertSchool, getTopFirstOrder, insertTicket, insertOrder };
