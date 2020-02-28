@@ -25,5 +25,6 @@ module.exports = {
             domain: 'localhost',
             port: '27017'
         },
-    },
+        explaraAccessToken: 'd3fc964d222c8a6093c7019062f328c0d89bf6f2'
+    }
 };

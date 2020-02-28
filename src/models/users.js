@@ -79,6 +79,7 @@ function insertOrder(order) {
   order.attendee.forEach(ticket => {
     tempAttendee.push(ticket.email);
   });
+  console.log(tempAttendee);
   tempOrder.attendee = tempAttendee;
   var insertData = new Order(tempOrder);
   insertData.save((err, createdOrder) => {
@@ -113,7 +114,7 @@ function insertTicket(ticket) {
 function getTopFirstOrder() {
   var deferred = q.defer();
   Order.find({}, null, {sort: {'purchaseDate.date': -1}, limit: 1}, (err, order) => {
-    console.log(order, err);
+    console.log(order.email);
     if (err || !order) {
       deferred.reject({ status: "Error", message: err });
     }
@@ -124,20 +125,21 @@ function getTopFirstOrder() {
 
 function getUser(email) {
   var deferred = q.defer();
-  console.log(email);
   User.findOne({email: email}, (err, user) => {
-    console.log(user, err);
+    console.log(user, err, email);
     if (err || !user) {
       deferred.reject({ status: "Error", message: err });
     }
-    if (!user.schoolId)
+    if (user && user.schoolId) {
+      getSchool(user.schoolId).then(function(school, err){
+        user = JSON.parse(JSON.stringify(user));
+        user['schoolName'] = school.name;
+        deferred.resolve(user);
+      })
+    } else {
       deferred.reject({ status: "Error", message: err });
+    }
 
-    getSchool(user.schoolId).then(function(school, err){
-      user = JSON.parse(JSON.stringify(user));
-      user['schoolName'] = school.name;
-      deferred.resolve(user);
-    })
   });
   return deferred.promise;
 }
