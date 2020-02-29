@@ -72,7 +72,7 @@ function syncAttendees (orders, callback) {
                                         "name": ticket.details["First Name"] + " " + ticket.details["Last Name"],
                                         "user_id": ticket.id,
                                         "connection": "Username-Password-Authentication",
-                                        "password": 'Mbat12345',
+                                        "password": 'User12345',
                                         "verify_email": true
                                     };
                                     await users.makeUserAPICall(createUserData, callback);

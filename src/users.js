@@ -52,7 +52,7 @@ function createUser(req, res, callback) {
     let createUserData = {
         "email": req.body.email,
         "user_metadata": {
-            "role": "admin",
+            "role": "member",
             "schoolId": req.body.schoolId,
             "phoneNumber": req.body.phoneNumber
         },
