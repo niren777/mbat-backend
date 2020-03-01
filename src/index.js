@@ -89,6 +89,11 @@ app.post('/users', checkJwt, function(req, res) {
   // console.log(users.getUserDocument());
   users.createMultipleUsers(req, res, function(data){res.json(data)});
 });
+app.get('/orders', checkJwt, getUserInfo, function(req, res) {
+  console.log(req.user.email);
+  usersModel.getOrders(req.user.email).then(
+    function(data){res.json(data)}).catch(function(error){res.json(error)});
+});
 app.get('/schools', function(req, res) {
   usersModel.getSchools().then(function(data){
     res.json(data);

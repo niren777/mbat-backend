@@ -77,7 +77,7 @@ function insertOrder(order) {
   var tempOrder = JSON.parse(JSON.stringify(order));
   var tempAttendee = [];
   order.attendee.forEach(ticket => {
-    tempAttendee.push(ticket.email);
+    tempAttendee.push(ticket.ticketId);
   });
   console.log(tempAttendee);
   tempOrder.attendee = tempAttendee;
@@ -121,6 +121,37 @@ function getTopFirstOrder() {
     deferred.resolve(order);
   });
   return deferred.promise;
+}
+
+function getOrders(email) {
+  var outerDeferred = q.defer();
+  Order.find({email: email}, (err, orders) => {
+    var promises = [];
+    !orders && deferred.resolve([]);
+    err && deferred.reject({ status: "Error", message: err });
+    let tempOrders = JSON.parse(JSON.stringify(orders));
+    tempOrders.forEach(order => {
+      let tempTicketIds = JSON.parse(JSON.stringify(order.attendee));
+      order.attendee = [];
+      tempTicketIds.forEach(ticketId => {
+        var deferred = q.defer();
+        getTicket(ticketId).then(function(ticket, err){
+          order.attendee.push(ticket);
+          deferred.resolve(order);
+        }).catch(function(error){
+          console.log(error);
+          deferred.reject(error.message || error);
+        });
+        promises.push(deferred.promise);
+      });
+    });
+    q.all(promises).then(function(data){
+      outerDeferred.resolve(data);
+    }).catch(function(error){
+      outerDeferred.reject(error.message || error);
+    });
+  });
+  return outerDeferred.promise;
 }
 
 function getUser(email) {
@@ -170,6 +201,20 @@ function insertUser(user) {
   return deferred.promise;
 }
 
+function getTicket(ticketId) {
+  var deferred = q.defer();
+  Ticket.findOne({ticketId: ticketId}, (err, ticket) => {
+    if (err || !ticket) {
+      deferred.reject({
+        status: "Error",
+        message: err
+      });
+    }
+    deferred.resolve(ticket);
+  });
+  return deferred.promise;
+}
+
 function getSchool(id) {
   var deferred = q.defer();
   School.findOne({id: id}, (err, school) => {
@@ -215,4 +260,4 @@ function insertSchool(school) {
   });
   return deferred.promise;
 }
-module.exports = { UserSchema, User, getUser, insertUser, getSchool, SchoolSchema, School, getSchools, insertSchool, getTopFirstOrder, insertTicket, insertOrder };
+module.exports = { UserSchema, User, getUser, insertUser, getSchool, SchoolSchema, School, getSchools, insertSchool, getTopFirstOrder, insertTicket, insertOrder, getOrders };
