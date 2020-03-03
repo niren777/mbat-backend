@@ -18,8 +18,8 @@ module.exports = {
         environment: "production",
         auth0: {
             domain: 'mbatournament.eu.auth0.com',
-            clientId: 'c12eKBc1z9VtqsLXDXXBF1Egl5j1DThW',
-            clientSecret: '3QN4OhIbaYCwQxhdMel8WGaD_Dt0lUsE2cZMX-4I_oLfSBXP68erEPEbdUVDa1Uy'
+            clientId: 'spvllI0SfIkmgC3tIfH4pMTY2WcB7MNF',
+            clientSecret: 'rpOTcaHlzrOuCEAOmB-iF1yiEvU62-Btde6LeCfbnVZHICLba2vseMVDxuZV_-rI'
         },
         mongodb: {
             domain: 'localhost',

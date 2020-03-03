@@ -21,7 +21,10 @@ const UserSchema = new mongoose.Schema({
   auth0Id: { type: String, required: true, default: '' },
   emailVerified: { type: Boolean, required: true,  default: false },
   createdAt: { type: String, required: false },
-  picture: { type: String, default: '' }
+  picture: { type: String, default: '' },
+  address: { type: String, required: false },
+  country: { type: String, required: false },
+  state: { type: String, required: false }
 });
 
 const User = mongoose.model('User', UserSchema, 'User');
@@ -127,23 +130,31 @@ function getOrders(email) {
   var outerDeferred = q.defer();
   Order.find({email: email}, (err, orders) => {
     var promises = [];
-    !orders && deferred.resolve([]);
-    err && deferred.reject({ status: "Error", message: err });
+    !orders && outerDeferred.resolve([]);
+    err && outerDeferred.reject({ status: "Error", message: err });
     let tempOrders = JSON.parse(JSON.stringify(orders));
     tempOrders.forEach(order => {
+      var deferred = q.defer();
       let tempTicketIds = JSON.parse(JSON.stringify(order.attendee));
-      order.attendee = [];
+      var innerPromises = [];
       tempTicketIds.forEach(ticketId => {
-        var deferred = q.defer();
+        var innerDeferred = q.defer();
         getTicket(ticketId).then(function(ticket, err){
-          order.attendee.push(ticket);
-          deferred.resolve(order);
+          innerDeferred.resolve(ticket);
         }).catch(function(error){
           console.log(error);
-          deferred.reject(error.message || error);
+          innerDeferred.reject(error.message || error);
         });
-        promises.push(deferred.promise);
+        innerPromises.push(innerDeferred.promise);
       });
+      q.all(innerPromises).then(function(data){
+        order.attendee = data;
+        console.log('tempOrders', order);
+        deferred.resolve(order);
+      }).catch(function(error){
+        deferred.reject(error.message || error);
+      });
+      promises.push(deferred.promise);
     });
     q.all(promises).then(function(data){
       outerDeferred.resolve(data);
