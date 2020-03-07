@@ -26,5 +26,19 @@ module.exports = {
             port: '27017'
         },
         explaraAccessToken: 'a0430f1408625317f562d3bc7870f9bf62ec437a'
+    },
+    staging: {
+        port: 8080,
+        environment: "staging",
+        auth0: {
+            domain: 'mbat-staging.eu.auth0.com',
+            clientId: 'WcptIRns3mgEXol0cyWRYLmStUkSMOA1',
+            clientSecret: 'LVvSb2fBGG4F77aeXe2pXvFaozDlbrYy5HIZQos56vVClsKcEVi-XSf9go9y0X29'
+        },
+        mongodb: {
+            domain: 'localhost',
+            port: '27017'
+        },
+        explaraAccessToken: 'a0430f1408625317f562d3bc7870f9bf62ec437a'
     }
 };
