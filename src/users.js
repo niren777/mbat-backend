@@ -148,4 +148,29 @@ function createMultipleUsers(req, res, callback) {
         });
     });
 }
-module.exports = { createUser, createMultipleUsers, getToken, makeUserAPICall };
+
+function changePassword(password, email) {
+    var deferred = q.defer();
+    getAccessToken().then(function(token) {
+        console.log(token)
+        var options = {
+            method: 'PATCH',
+            url: 'https://' + util.config.auth0.domain + '/api/v2/users/' + email,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token.access_token
+            },
+            body: {password: password, connection: 'Username-Password-Authentication'},
+            json: true
+        };
+        requestPromise(options).then(function (body) {
+            console.log(body)
+            deferred.resolve(JSON.parse(body));
+        }).catch(function(error){
+            // console.log(error)
+            deferred.reject(error);
+        });
+    });
+    return deferred.promise;
+}
+module.exports = { createUser, createMultipleUsers, getToken, makeUserAPICall, changePassword };

@@ -108,3 +108,12 @@ app.post('/attendee', checkJwt, function(req, res) {
   attendee.getAndStoreAttendees(function(data){res.json(data)});
   // attendee.syncAttendees(orders, function(data){res.json(data)});
 });
+app.patch('/users', checkJwt, getUserInfo, function(req, res) {
+  if (req.body.password) {
+    console.log(req.user)
+    return users.changePassword(req.body.password, req.user.sub);
+  } else {
+
+  }
+  // attendee.syncAttendees(orders, function(data){res.json(data)});
+});
