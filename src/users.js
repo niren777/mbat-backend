@@ -69,7 +69,8 @@ function createUser(req, res, callback) {
     };
     let otherData = {
         yearOfGraduation: req.body.yearOfGraduation,
-        linkedIn: req.body.linkedIn
+        linkedIn: req.body.linkedIn,
+        program: req.body.program
     }
     console.log(req.body);
     makeUserAPICall(createUserData, otherData, callback);

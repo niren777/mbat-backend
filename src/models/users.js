@@ -26,7 +26,8 @@ const UserSchema = new mongoose.Schema({
   country: { type: String, required: false },
   state: { type: String, required: false },
   yearOfGraduation: { type: String, required: false },
-  linkedIn: { type: String, required: false }
+  linkedIn: { type: String, required: false },
+  program: { type: String, required: false }
 });
 
 const User = mongoose.model('User', UserSchema, 'User');
@@ -203,7 +204,8 @@ function insertUser(user, otherData) {
       createdAt: user.created_at,
       picture: user.picture,
       yearOfGraduation: otherData.yearOfGraduation,
-      linkedIn: otherData.linkedIn
+      linkedIn: otherData.linkedIn,
+      program: otherData.program
     });
     insertData.save((err, user) => {
       if (err || !user) {
