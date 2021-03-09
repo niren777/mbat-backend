@@ -24,7 +24,9 @@ const UserSchema = new mongoose.Schema({
   picture: { type: String, default: '' },
   address: { type: String, required: false },
   country: { type: String, required: false },
-  state: { type: String, required: false }
+  state: { type: String, required: false },
+  yearOfGraduation: { type: String, required: false },
+  linkedIn: { type: String, required: false }
 });
 
 const User = mongoose.model('User', UserSchema, 'User');
@@ -186,7 +188,7 @@ function getUser(email) {
   return deferred.promise;
 }
 
-function insertUser(user) {
+function insertUser(user, otherData) {
   var deferred = q.defer();
   getSchool(user.user_metadata.schoolId).then(function(school){
     console.log('here...1111');
@@ -199,7 +201,9 @@ function insertUser(user) {
       schoolId: school.id,
       emailVerified: user.email_verified,
       createdAt: user.created_at,
-      picture: user.picture
+      picture: user.picture,
+      yearOfGraduation: otherData.yearOfGraduation,
+      linkedIn: otherData.linkedIn
     });
     insertData.save((err, user) => {
       if (err || !user) {
