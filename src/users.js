@@ -67,10 +67,14 @@ function createUser(req, res, callback) {
         "password": req.body.password,
         "verify_email": true
     };
+    let otherData = {
+        yearOfGraduation: req.body.yearOfGraduation,
+        linkedIn: req.body.linkedIn
+    }
     console.log(req.body);
-    makeUserAPICall(createUserData, callback);
+    makeUserAPICall(createUserData, otherData, callback);
 }
-function makeUserAPICall(createUserData, callback) {
+function makeUserAPICall(createUserData, otherData, callback) {
     getAccessToken().then(function(token) {
         console.log(token)
         requestPromise({
@@ -85,7 +89,7 @@ function makeUserAPICall(createUserData, callback) {
         }).then(async function(body){
             var user = JSON.parse(body.body);
             console.log(user);
-            await users.insertUser(user);
+            await users.insertUser(user, otherData);
             getToken(createUserData).then(function(tokenData){
                 user.access_token = tokenData.access_token;
                 console.log(user)
