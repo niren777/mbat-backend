@@ -101,7 +101,7 @@ app.get('/schools', function(req, res) {
     res.json(error);
   });
 });
-app.post('/schools', checkJwt, function(req, res) {
+app.post('/schools', function(req, res) {
   schools.createMultipleSchools(req, res, function(data){res.json(data)});
 });
 app.post('/attendee', checkJwt, function(req, res) {
