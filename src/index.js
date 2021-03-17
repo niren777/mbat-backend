@@ -89,11 +89,29 @@ app.post('/users', checkJwt, function(req, res) {
   // console.log(users.getUserDocument());
   users.createMultipleUsers(req, res, function(data){res.json(data)});
 });
+app.patch('/users', checkJwt, getUserInfo, function(req, res) {
+  if (req.body.password) {
+    console.log(req.user)
+    return users.changePassword(req.body.password, req.user.sub);
+  } else {
+
+  }
+  // attendee.syncAttendees(orders, function(data){res.json(data)});
+});
+app.get('/users', checkJwt, function(req, res) {
+  usersModel.getUsers().then(function(data){
+    res.json(data);
+  }).catch(function(error){
+    res.json(error);
+  });
+});
+
 app.get('/orders', checkJwt, getUserInfo, function(req, res) {
   console.log(req.user.email);
   usersModel.getOrders(req.user.email).then(
     function(data){res.json(data)}).catch(function(error){res.json(error)});
 });
+
 app.get('/schools', function(req, res) {
   usersModel.getSchools().then(function(data){
     res.json(data);
@@ -104,16 +122,8 @@ app.get('/schools', function(req, res) {
 app.post('/schools', function(req, res) {
   schools.createMultipleSchools(req, res, function(data){res.json(data)});
 });
+
 app.post('/attendee', checkJwt, function(req, res) {
   attendee.getAndStoreAttendees(function(data){res.json(data)});
-  // attendee.syncAttendees(orders, function(data){res.json(data)});
-});
-app.patch('/users', checkJwt, getUserInfo, function(req, res) {
-  if (req.body.password) {
-    console.log(req.user)
-    return users.changePassword(req.body.password, req.user.sub);
-  } else {
-
-  }
   // attendee.syncAttendees(orders, function(data){res.json(data)});
 });

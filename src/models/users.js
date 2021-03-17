@@ -260,6 +260,20 @@ function getSchools() {
   return deferred.promise;
 }
 
+function getUsers() {
+  var deferred = q.defer();
+  User.find({}, (err, users) => {
+    if (err || !users) {
+      deferred.reject({
+        status: "Error",
+        message: err
+      });
+    }
+    deferred.resolve(users);
+  });
+  return deferred.promise;
+}
+
 function insertSchool(school) {
   var deferred = q.defer();
   var insertData = new School({
@@ -277,4 +291,4 @@ function insertSchool(school) {
   });
   return deferred.promise;
 }
-module.exports = { UserSchema, User, getUser, insertUser, getSchool, SchoolSchema, School, getSchools, insertSchool, getTopFirstOrder, insertTicket, insertOrder, getOrders };
+module.exports = { UserSchema, User, getUser, insertUser, getSchool, SchoolSchema, School, getSchools, insertSchool, getTopFirstOrder, insertTicket, insertOrder, getOrders, getUsers };
