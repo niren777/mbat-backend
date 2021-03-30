@@ -5,7 +5,8 @@ module.exports = {
         auth0: {
             domain: 'blr-mbat.auth0.com',
             clientId: 'PCTTqLIlZIdN5PShWs7wi0y9cFHM2VoI',
-            clientSecret: '79BMOtPP_MCgsQJFIK98wEp7e8wJfQT-p2R63bBDa2ROjW5NmO5lU8I6z9ubUQPa'
+            clientSecret: '79BMOtPP_MCgsQJFIK98wEp7e8wJfQT-p2R63bBDa2ROjW5NmO5lU8I6z9ubUQPa',
+            apiIdentifier: 'https://blr-mbat.auth0.com/api/v2/'
         },
         mongodb: {
             domain: 'localhost',

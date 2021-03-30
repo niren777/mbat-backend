@@ -106,6 +106,28 @@ app.get('/users', checkJwt, function(req, res) {
   });
 });
 
+app.post('/users/token', function(req, res) {
+  var options = { method: 'POST',
+    url: 'https://' + util.config.auth0.domain + '/oauth/token',
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    form:{ 
+        grant_type: 'password',
+        username: req.body.email,
+        password: req.body.password,
+        audience: util.config.auth0.apiIdentifier,
+        scope: 'openid',
+        client_id: util.config.auth0.clientId,
+        client_secret: util.config.auth0.clientSecret 
+      }
+    };
+
+  request(options, function (error, response, body) {
+    if (error) throw new Error(error);
+
+    res.json(JSON.parse(body));
+  });
+});
+
 app.get('/orders', checkJwt, getUserInfo, function(req, res) {
   console.log(req.user.email);
   usersModel.getOrders(req.user.email).then(
@@ -127,3 +149,4 @@ app.post('/attendee', checkJwt, function(req, res) {
   attendee.getAndStoreAttendees(function(data){res.json(data)});
   // attendee.syncAttendees(orders, function(data){res.json(data)});
 });
+
