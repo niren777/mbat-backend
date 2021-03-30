@@ -20,7 +20,8 @@ module.exports = {
         auth0: {
             domain: 'mbatournament.eu.auth0.com',
             clientId: 'spvllI0SfIkmgC3tIfH4pMTY2WcB7MNF',
-            clientSecret: 'rpOTcaHlzrOuCEAOmB-iF1yiEvU62-Btde6LeCfbnVZHICLba2vseMVDxuZV_-rI'
+            clientSecret: 'rpOTcaHlzrOuCEAOmB-iF1yiEvU62-Btde6LeCfbnVZHICLba2vseMVDxuZV_-rI',
+            apiIdentifier: 'https://mbatournament.eu.auth0.com/api/v2/'
         },
         mongodb: {
             domain: 'localhost',
@@ -34,7 +35,8 @@ module.exports = {
         auth0: {
             domain: 'mbat-staging.eu.auth0.com',
             clientId: 'WcptIRns3mgEXol0cyWRYLmStUkSMOA1',
-            clientSecret: 'LVvSb2fBGG4F77aeXe2pXvFaozDlbrYy5HIZQos56vVClsKcEVi-XSf9go9y0X29'
+            clientSecret: 'LVvSb2fBGG4F77aeXe2pXvFaozDlbrYy5HIZQos56vVClsKcEVi-XSf9go9y0X29',
+            apiIdentifier: 'https://mbat-staging.eu.auth0.com/api/v2/'
         },
         mongodb: {
             domain: 'localhost',
