@@ -51,24 +51,26 @@ const checkJwt = jwt({
 
 const getUserInfo = function(req, res, next) {
   console.log(req.headers.authorization);
-    request('https://' + util.config.auth0.domain + '/userinfo', {
-      crossDomain: true,
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': req.headers.authorization
-      }
-    }, function(error, data){
-      if(error) {
-          res.json({
-            'error': 'error'
-          })
-      }
+  request('https://' + util.config.auth0.domain + '/userinfo', {
+    crossDomain: true,
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': req.headers.authorization
+    }
+  }, function(error, data){
+    if(error) {
+        res.json({
+          'error': 'error'
+        })
+    }
+    if(data) {
       console.log(data.body)
       req.user = JSON.parse(data.body);
-      next();
-    });
+    }
+    next();
+  });
 };
 app.get('/public', function(req, res) {
     // console.log(users.getUserDocument());
