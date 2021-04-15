@@ -147,13 +147,44 @@ app.post('/schools', function(req, res) {
   schools.createMultipleSchools(req, res, function(data){res.json(data)});
 });
 app.patch('/schools/:id', checkJwt, function(req, res) {
-  if (req.body.points, req.params.id) {
+  if (req.body.points && req.params.id) {
     usersModel.updatePointsForSchool(req.body.points, req.params.id).then(function(data){
       res.json(data);
     }).catch(function(error){
       res.status(404).send(error);
     });
   }
+});
+
+app.get('/questions', checkJwt, function(req, res) {
+  usersModel.fetchQuestions().then(function(data){
+    res.json(data);
+  }).catch(function(error){
+    res.json(error);
+  });
+});
+app.patch('/questions/:questionId/', checkJwt, function(req, res) {
+  if (req.body.status && req.params.questionId) {
+    usersModel.activateQuestion(req.body.status, req.params.questionId).then(function(data){
+      res.json(data);
+    }).catch(function(error){
+      res.status(404).send(error);
+    });
+  }
+});
+app.post('/questions', checkJwt, function(req, res) {
+  usersModel.insertQuestion(req.body).then(function(data){
+    res.json(data);
+  }).catch(function(error){
+    res.status(404).send(error);
+  });
+});
+app.get('/questions/active', checkJwt, function(req, res) {
+  usersModel.fetchActiveQuestion().then(function(data){
+    res.json(data);
+  }).catch(function(error){
+    res.status(404).send(error);
+  });
 });
 
 app.post('/attendee', checkJwt, function(req, res) {

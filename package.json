@@ -17,6 +17,7 @@
     "mongoose": "5.6.7",
     "q": "^1.5.1",
     "request": "^2.81.0",
-    "request-promise": "^4.2.5"
+    "request-promise": "^4.2.5",
+    "uuid": "^8.3.2"
   }
 }

@@ -3,6 +3,11 @@ const q = require('q');
 
 const util = require('../util');
 
+const { 
+  v1: uuidv1,
+  v4: uuidv4,
+} = require('uuid');
+
 const mongooseMbat = mongoose.connect('mongodb://' + util.config.mongodb.domain + ':' + util.config.mongodb.port + '/mbat', { useFindAndModify: false })
 .then(() => {
   console.log('Connected to database');
@@ -79,6 +84,17 @@ const OrderSchema = new mongoose.Schema({
 });
 
 const Order = mongoose.model('Order', OrderSchema, 'Order');
+
+
+const QuestionSchema = new mongoose.Schema({
+  questionId: { type: String, unique : true, required: true },
+  question: { type: String, required: false },
+  options: { type: [String], required: false },
+  expireBy: { type: String, required: false },
+  active: { type: Boolean, required: false,  default: false }
+});
+
+const Question = mongoose.model('Question', QuestionSchema, 'Question');
 
 function insertOrder(order) {
   var deferred = q.defer();
@@ -294,7 +310,7 @@ function insertSchool(school) {
   return deferred.promise;
 }
 
-function updatePointsForSchool(points, schoolId, callback) {
+function updatePointsForSchool(points, schoolId) {
   var deferred = q.defer();
   School.findOneAndUpdate({id: schoolId}, {points: points}, (err, school) => {
     if (err || !school) {
@@ -306,5 +322,65 @@ function updatePointsForSchool(points, schoolId, callback) {
   return deferred.promise;
 }
 
-module.exports = { UserSchema, User, getUser, insertUser, getSchool, SchoolSchema, School,
-  getSchools, insertSchool, getTopFirstOrder, insertTicket, insertOrder, getOrders, getUsers, updatePointsForSchool };
+function insertQuestion(question) {
+  var deferred = q.defer();
+  var insertData = new Question({
+    questionId: uuidv4(),
+    question: question.question,
+    options: question.options,
+    expireBy: question.expireBy,
+    active: question.active
+  });
+  console.log(insertData)
+  insertData.save((err, savedQuestion) => {
+    if (err || !savedQuestion) {
+      deferred.reject({ status: "Error", message: err });
+    }
+    deferred.resolve(savedQuestion);
+  });
+  return deferred.promise;
+}
+
+function activateQuestion(status, questionId) {
+  var deferred = q.defer();
+  Question.findOneAndUpdate({questionId: questionId}, {active: status}, (err, question) => {
+    if (err || !question) {
+      deferred.reject({ status: "Error", message: err });
+    }
+    question.active = status;
+    deferred.resolve(question);
+  });
+  return deferred.promise;
+  
+}
+
+function fetchActiveQuestion() {
+  var deferred = q.defer();
+  Question.find({active: true}, (err, questions) => {
+    if (err || !questions) {
+      deferred.reject({
+        status: "Error",
+        message: err
+      });
+    }
+    deferred.resolve(questions);
+  });
+  return deferred.promise;
+}
+
+function fetchQuestions() {
+  var deferred = q.defer();
+  Question.find({}, (err, questions) => {
+    if (err || !questions) {
+      deferred.reject({
+        status: "Error",
+        message: err
+      });
+    }
+    deferred.resolve(questions);
+  });
+  return deferred.promise;
+}
+
+module.exports = { UserSchema, User, getUser, insertUser, getSchool, SchoolSchema, School, insertQuestion, activateQuestion, fetchQuestions,
+  getSchools, insertSchool, getTopFirstOrder, insertTicket, insertOrder, getOrders, getUsers, updatePointsForSchool, fetchActiveQuestion };
