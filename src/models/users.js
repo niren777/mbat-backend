@@ -3,7 +3,7 @@ const q = require('q');
 
 const util = require('../util');
 
-const mongooseMbat = mongoose.connect('mongodb://' + util.config.mongodb.domain + ':' + util.config.mongodb.port + '/mbat')
+const mongooseMbat = mongoose.connect('mongodb://' + util.config.mongodb.domain + ':' + util.config.mongodb.port + '/mbat', { useFindAndModify: false })
 .then(() => {
   console.log('Connected to database');
 }).catch(
@@ -36,7 +36,9 @@ const SchoolSchema = new mongoose.Schema({
   id: { type: String, unique : true, required: true },
   name: { type: String, required: true },
   address: { type: String, required: false },
-  phoneNumber: { type: String, required: false }
+  phoneNumber: { type: String, required: false },
+  logo: { type: String, required: false, default: '' },
+  points: { type: String, required: false, default: '' }
 });
 
 const School = mongoose.model('School', SchoolSchema, 'School');
@@ -291,4 +293,18 @@ function insertSchool(school) {
   });
   return deferred.promise;
 }
-module.exports = { UserSchema, User, getUser, insertUser, getSchool, SchoolSchema, School, getSchools, insertSchool, getTopFirstOrder, insertTicket, insertOrder, getOrders, getUsers };
+
+function updatePointsForSchool(points, schoolId, callback) {
+  var deferred = q.defer();
+  School.findOneAndUpdate({id: schoolId}, {points: points}, (err, school) => {
+    if (err || !school) {
+      deferred.reject({ status: "Error", message: err });
+    }
+    school.points = points;
+    deferred.resolve(school);
+  });
+  return deferred.promise;
+}
+
+module.exports = { UserSchema, User, getUser, insertUser, getSchool, SchoolSchema, School,
+  getSchools, insertSchool, getTopFirstOrder, insertTicket, insertOrder, getOrders, getUsers, updatePointsForSchool };

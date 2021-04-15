@@ -80,7 +80,7 @@ app.get('/public', function(req, res) {
     });
 });
 app.get('/user', checkJwt, getUserInfo, function(req, res) {
-  // console.log(req.user);
+  console.log(req.user);
   usersModel.getUser(req.user.email).then(function(data){res.json(data)});
 });
 app.post('/user', function(req, res) {
@@ -145,6 +145,15 @@ app.get('/schools', function(req, res) {
 });
 app.post('/schools', function(req, res) {
   schools.createMultipleSchools(req, res, function(data){res.json(data)});
+});
+app.patch('/schools/:id', checkJwt, function(req, res) {
+  if (req.body.points, req.params.id) {
+    usersModel.updatePointsForSchool(req.body.points, req.params.id).then(function(data){
+      res.json(data);
+    }).catch(function(error){
+      res.status(404).send(error);
+    });
+  }
 });
 
 app.post('/attendee', checkJwt, function(req, res) {
