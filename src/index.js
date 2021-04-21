@@ -49,6 +49,19 @@ const checkJwt = jwt({
   algorithms: ['RS256']
 });
 
+const isAdmin = function (req, res, next) {
+  console.log('isAdmin: ', req.user)
+  usersModel.getUser(req.user.email).then(function(user){
+    if (user.role === 'admin') {
+      next();
+    } else {
+      res.status(403).send({
+        'error': 'You don’t have permission to access this resource!'
+      })
+    }
+  });
+}
+
 const getUserInfo = function(req, res, next) {
   console.log(req.headers.authorization);
   request('https://' + util.config.auth0.domain + '/userinfo', {
@@ -146,7 +159,7 @@ app.get('/schools', function(req, res) {
 app.post('/schools', function(req, res) {
   schools.createMultipleSchools(req, res, function(data){res.json(data)});
 });
-app.patch('/schools/:id', checkJwt, function(req, res) {
+app.post('/schools/:id', checkJwt, getUserInfo, isAdmin, function(req, res) {
   if (req.body.points && req.params.id) {
     usersModel.updatePointsForSchool(req.body.points, req.params.id).then(function(data){
       res.json(data);
@@ -156,14 +169,14 @@ app.patch('/schools/:id', checkJwt, function(req, res) {
   }
 });
 
-app.get('/questions', checkJwt, function(req, res) {
+app.get('/questions', checkJwt, getUserInfo, isAdmin, function(req, res) {
   usersModel.fetchQuestions().then(function(data){
     res.json(data);
   }).catch(function(error){
     res.json(error);
   });
 });
-app.patch('/questions/:questionId/', checkJwt, function(req, res) {
+app.patch('/questions/:questionId/', checkJwt, getUserInfo, isAdmin, function(req, res) {
   if (req.body.status && req.params.questionId) {
     usersModel.activateQuestion(req.body.status, req.params.questionId).then(function(data){
       res.json(data);
@@ -172,7 +185,7 @@ app.patch('/questions/:questionId/', checkJwt, function(req, res) {
     });
   }
 });
-app.post('/questions', checkJwt, function(req, res) {
+app.post('/questions', checkJwt, getUserInfo, isAdmin, function(req, res) {
   usersModel.insertQuestion(req.body).then(function(data){
     res.json(data);
   }).catch(function(error){

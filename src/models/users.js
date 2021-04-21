@@ -316,8 +316,10 @@ function updatePointsForSchool(points, schoolId) {
     if (err || !school) {
       deferred.reject({ status: "Error", message: err });
     }
-    school.points = points;
-    deferred.resolve(school);
+    if (school){
+      school.points = points;
+      deferred.resolve(school);
+    }
   });
   return deferred.promise;
 }
