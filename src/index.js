@@ -176,9 +176,18 @@ app.get('/questions', checkJwt, getUserInfo, isAdmin, function(req, res) {
     res.json(error);
   });
 });
-app.patch('/questions/:questionId/', checkJwt, getUserInfo, isAdmin, function(req, res) {
-  if (req.body.status && req.params.questionId) {
+app.post('/questions/:questionId/activate/', checkJwt, getUserInfo, isAdmin, function(req, res) {
+  if (req.params.questionId) {
     usersModel.activateQuestion(req.body.status, req.params.questionId).then(function(data){
+      res.json(data);
+    }).catch(function(error){
+      res.status(404).send(error);
+    });
+  }
+});
+app.delete('/questions/:questionId/', checkJwt, getUserInfo, isAdmin, function(req, res) {
+  if (req.params.questionId) {
+    usersModel.deleteQuestion(req.params.questionId).then(function(data){
       res.json(data);
     }).catch(function(error){
       res.status(404).send(error);
@@ -187,6 +196,13 @@ app.patch('/questions/:questionId/', checkJwt, getUserInfo, isAdmin, function(re
 });
 app.post('/questions', checkJwt, getUserInfo, isAdmin, function(req, res) {
   usersModel.insertQuestion(req.body).then(function(data){
+    res.json(data);
+  }).catch(function(error){
+    res.status(404).send(error);
+  });
+});
+app.put('/questions/:questionId/', checkJwt, getUserInfo, isAdmin, function(req, res) {
+  usersModel.updateQuestion(req.body, req.params.questionId).then(function(data){
     res.json(data);
   }).catch(function(error){
     res.status(404).send(error);

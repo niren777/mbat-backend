@@ -343,15 +343,37 @@ function insertQuestion(question) {
   return deferred.promise;
 }
 
+function updateQuestion(question, questionId) {
+  var deferred = q.defer();
+  var newQuestion = {
+    question: question.question,
+    options: question.options,
+    expireBy: question.expireBy,
+    active: question.active
+  };
+  Question.findOneAndUpdate({questionId: questionId}, newQuestion, (err, savedQuestion) => {
+    if (err || !savedQuestion) {
+      deferred.reject({ status: "Error", message: err });
+    }
+    deferred.resolve(savedQuestion);
+  });
+  return deferred.promise;
+}
+
 function activateQuestion(status, questionId) {
   var deferred = q.defer();
-  Question.findOneAndUpdate({questionId: questionId}, {active: status}, (err, question) => {
+  Question.updateMany({},{active: false}, (err, question) => {
     if (err || !question) {
       deferred.reject({ status: "Error", message: err });
     }
-    question.active = status;
-    deferred.resolve(question);
-  });
+    Question.findOneAndUpdate({questionId: questionId}, {active: status}, (err, question) => {
+      if (err || !question) {
+        deferred.reject({ status: "Error", message: err });
+      }
+      question.active = status;
+      deferred.resolve(question);
+    });
+  })
   return deferred.promise;
   
 }
@@ -384,5 +406,19 @@ function fetchQuestions() {
   return deferred.promise;
 }
 
-module.exports = { UserSchema, User, getUser, insertUser, getSchool, SchoolSchema, School, insertQuestion, activateQuestion, fetchQuestions,
-  getSchools, insertSchool, getTopFirstOrder, insertTicket, insertOrder, getOrders, getUsers, updatePointsForSchool, fetchActiveQuestion };
+function deleteQuestion (questionId) {
+  var deferred = q.defer();
+  Question.deleteOne({questionId: questionId}, (err, questions) => {
+    if (err || !questions) {
+      deferred.reject({
+        status: "Error",
+        message: err
+      });
+    }
+    deferred.resolve(questions);
+  });
+  return deferred.promise;
+
+}
+module.exports = { UserSchema, User, getUser, insertUser, getSchool, SchoolSchema, School, insertQuestion, activateQuestion, deleteQuestion, fetchQuestions,
+  getSchools, insertSchool, getTopFirstOrder, insertTicket, insertOrder, getOrders, getUsers, updatePointsForSchool, fetchActiveQuestion, updateQuestion };
