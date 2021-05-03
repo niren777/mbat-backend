@@ -96,6 +96,14 @@ const QuestionSchema = new mongoose.Schema({
 
 const Question = mongoose.model('Question', QuestionSchema, 'Question');
 
+const VotingSchema = new mongoose.Schema({
+  questionId: { type: String, required: true },
+  votedBy: { type: String, required: false },
+  option: { type: String, required: false },
+});
+
+const Voting = mongoose.model('Voting', VotingSchema, 'Voting');
+
 function insertOrder(order) {
   var deferred = q.defer();
   var tempOrder = JSON.parse(JSON.stringify(order));
@@ -418,7 +426,49 @@ function deleteQuestion (questionId) {
     deferred.resolve(questions);
   });
   return deferred.promise;
-
 }
-module.exports = { UserSchema, User, getUser, insertUser, getSchool, SchoolSchema, School, insertQuestion, activateQuestion, deleteQuestion, fetchQuestions,
-  getSchools, insertSchool, getTopFirstOrder, insertTicket, insertOrder, getOrders, getUsers, updatePointsForSchool, fetchActiveQuestion, updateQuestion };
+
+function insertVoting(vote, email) {
+  var deferred = q.defer();
+  var votingData = {
+    questionId: vote.questionId,
+    votedBy: email,
+    option: vote.option,
+  };
+  Voting.update({questionId: vote.questionId, votedBy: email}, votingData, {upsert: true}, (err, insertedVote) => {
+    if (err || !insertedVote) {
+      deferred.reject({ status: "Error", message: err });
+    }
+    deferred.resolve(insertedVote);
+  });
+  return deferred.promise;
+}
+function fetchVoting() {
+  var deferred = q.defer();
+  Voting.find({}, (err, votes) => {
+    if (err || !votes) {
+      deferred.reject({
+        status: "Error",
+        message: err
+      });
+    }
+    deferred.resolve(votes);
+  });
+  return deferred.promise;
+}
+function fetchVoteById(quetionId, email) {
+  var deferred = q.defer();
+  Voting.find({questionId: quetionId, votedBy: email}, (err, vote) => {
+    if (err || !vote) {
+      deferred.reject({
+        status: "Error",
+        message: err
+      });
+    }
+    deferred.resolve(vote);
+  });
+  return deferred.promise;
+}
+
+module.exports = { UserSchema, User, getUser, insertUser, getSchool, SchoolSchema, School, Voting, insertVoting, insertQuestion, activateQuestion, deleteQuestion, fetchQuestions,
+  getSchools, insertSchool, getTopFirstOrder, insertTicket, insertOrder, getOrders, getUsers, updatePointsForSchool, fetchActiveQuestion, updateQuestion, fetchVoting, fetchVoteById };

@@ -216,6 +216,28 @@ app.get('/questions/active', checkJwt, function(req, res) {
   });
 });
 
+app.post('/votes/', checkJwt, getUserInfo, function(req, res) {
+  usersModel.insertVoting(req.body, req.user.email).then(function(data){
+    res.json(data);
+  }).catch(function(error){
+    res.status(404).send(error);
+  });
+});
+app.get('/votes/', checkJwt, getUserInfo, isAdmin, function(req, res) {
+  usersModel.fetchVoting().then(function(data){
+    res.json(data);
+  }).catch(function(error){
+    res.status(404).send(error);
+  });
+});
+app.get('/votes/:quetionId', checkJwt, getUserInfo, function(req, res) {
+  usersModel.fetchVoteById(req.params.quetionId, req.user.email).then(function(data){
+    res.json(data);
+  }).catch(function(error){
+    res.status(404).send(error);
+  });
+});
+
 app.post('/attendee', checkJwt, function(req, res) {
   attendee.getAndStoreAttendees(function(data){res.json(data)});
   // attendee.syncAttendees(orders, function(data){res.json(data)});
