@@ -374,13 +374,17 @@ function activateQuestion(status, questionId) {
     if (err || !question) {
       deferred.reject({ status: "Error", message: err });
     }
-    Question.findOneAndUpdate({questionId: questionId}, {active: status}, (err, question) => {
-      if (err || !question) {
-        deferred.reject({ status: "Error", message: err });
-      }
-      question.active = status;
-      deferred.resolve(question);
-    });
+    if(status) {
+      Question.findOneAndUpdate({questionId: questionId}, {active: status}, (err, question) => {
+        if (err || !question) {
+          deferred.reject({ status: "Error", message: err });
+        }
+        question.active = status;
+        deferred.resolve(question);
+      });
+    } else {
+      deferred.resolve({ status: "success", message: "de-activated all!" });
+    }
   })
   return deferred.promise;
   
